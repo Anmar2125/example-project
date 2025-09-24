@@ -10,11 +10,11 @@ RUN apt-get update && apt-get install -y \
 # Carpeta de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar solo requirements.txt 
-COPY requirements.txt .
+# Copiar solo requerimientos.txt 
+COPY requerimientos.txt .
 
 # Instalar todas las dependencias del proyecto
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requerimientos.txt
 
 # Copiar todo el proyecto al contenedor
 COPY . /app
