@@ -1,0 +1,47 @@
+name: CI Docker
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️ Clonar repositorio
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2️ Lint Dockerfile
+    - name: Lint Dockerfile
+      uses: hadolint/hadolint-action@v2
+      with:
+        dockerfile: Dockerfile
+
+    # 3️ Sugerencias de corrección (no aplica cambios)
+    - name: Suggest Dockerfile fixes
+      run: bash suggest_dockerfile_fix.sh
+
+    # 4️ Construir imagen Docker
+    - name: Build Docker image
+      run: docker build -t my-app:latest .
+
+    # 5 Ejecutar tests dentro del contenedor
+    - name: Run tests
+      run: docker run --rm my-app:latest pytest tests/
+
+    # 6 Login en Docker Hub (opcional)
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # 7  Push a Docker Hub solo si todo pasó
+    - name: Push Docker image
+      run: |
+        docker tag my-app:latest your-dockerhub-username/my-app:latest
+        docker push your-dockerhub-username/my-app:latest
